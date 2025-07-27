@@ -849,6 +849,325 @@ end
         end
     end
 
+
+	function SectionTable:ColorPicker(Info)
+    Info.Text = Info.Text or "ColorPicker"
+    Info.Flag = Info.Flag or nil
+    Info.Default = Info.Default or Color3.fromRGB(255, 255, 255)
+    Info.Callback = Info.Callback or function() end
+
+    local Color = Info.Default
+    local Hue, Sat, Val = Color3.toHSV(Color)
+    local Alpha = 1
+
+    local ColorPickerTable = {}
+    local ColorPickerOpen = false
+    local PickerIndex = DropIndex - 1
+
+    local ColorPicker = Utilities:Create("Frame", {
+        Name = "ColorPicker",
+        Parent = SectionContainer,
+        Size = UDim2.new(0, 286, 0, 21),
+        BackgroundTransparency = 1
+    }, {
+        Utilities:Create("Frame", {
+            Name = "ColorPickerFrame",
+            Size = UDim2.new(.6, 3, 0, 14),
+            BackgroundColor3 = Colors.Secondary,
+            ZIndex = PickerIndex
+        }, {
+            Utilities:Create("UIStroke", {
+                Color = Colors.AccentDivider
+            }),
+            Utilities:Create("TextLabel", {
+                Name = "ColorPickerText",
+                Text = Info.Text,
+                Size = UDim2.new(1, 0, 0, 14),
+                TextXAlignment = Enum.TextXAlignment.Left,
+                RichText = true,
+                Position = UDim2.new(0, 4, 0, 0),
+                TextSize = 13,
+                TextColor3 = Colors.PrimaryText,
+                Font = Enum.Font.SourceSansBold,
+                ZIndex = PickerIndex
+            }),
+            Utilities:Create("TextButton", {
+                Name = "ColorPickerButton",
+                Size = UDim2.new(1, 0, 0, 14),
+                BackgroundTransparency = 1,
+                ZIndex = PickerIndex
+            }),
+            Utilities:Create("Frame", {
+                Name = "ColorPreview",
+                Size = UDim2.new(0, 14, 0, 14),
+                BackgroundColor3 = Color,
+                Position = UDim2.new(1, -21, 0, 0),
+                ZIndex = PickerIndex
+            }, {
+                Utilities:Create("UIStroke", {
+                    Color = Colors.Divider
+                })
+            })
+        })
+    })
+
+    local ColorPickerContainer = Utilities:Create("Frame", {
+        Name = "ColorPickerContainer",
+        Parent = ColorPicker,
+        Size = UDim2.new(0, 200, 0, 150),
+        Position = UDim2.new(0, 0, 1, 5),
+        BackgroundColor3 = Colors.Secondary,
+        Visible = false,
+        ZIndex = PickerIndex - 1
+    }, {
+        Utilities:Create("UIStroke", {
+            Color = Colors.Divider
+        }),
+        Utilities:Create("Frame", {
+            Name = "ColorCanvas",
+            Size = UDim2.new(0, 150, 0, 150),
+            Position = UDim2.new(0, 5, 0, 5),
+            BackgroundColor3 = Color3.fromHSV(Hue, 1, 1),
+            ZIndex = PickerIndex - 1
+        }, {
+            Utilities:Create("UIGradient", {
+                Color = ColorSequence.new{
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
+                },
+                Transparency = NumberSequence.new{
+                    NumberSequenceKeypoint.new(0, 0),
+                    NumberSequenceKeypoint.new(1, 1)
+                },
+                Rotation = 90
+            }),
+            Utilities:Create("UIGradient", {
+                Color = ColorSequence.new{
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
+                },
+                Transparency = NumberSequence.new{
+                    NumberSequenceKeypoint.new(0, 1),
+                    NumberSequenceKeypoint.new(1, 0)
+                }
+            }),
+            Utilities:Create("ImageButton", {
+                Name = "ColorSelector",
+                Size = UDim2.new(0, 6, 0, 6),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Position = UDim2.new(Sat, 0, 1 - Val, 0),
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                BorderSizePixel = 0,
+                ZIndex = PickerIndex - 1
+            }, {
+                Utilities:Create("UIStroke", {
+                    Color = Color3.fromRGB(0, 0, 0),
+                    Thickness = 2
+                })
+            })
+        }),
+        Utilities:Create("Frame", {
+            Name = "HueSlider",
+            Size = UDim2.new(0, 20, 0, 150),
+            Position = UDim2.new(1, -25, 0, 5),
+            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+            ZIndex = PickerIndex - 1
+        }, {
+            Utilities:Create("UIGradient", {
+                Color = ColorSequence.new{
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+                    ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 0, 255)),
+                    ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 0, 255)),
+                    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+                    ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 255, 0)),
+                    ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 255, 0)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+                }
+            }),
+            Utilities:Create("Frame", {
+                Name = "HueSelector",
+                Size = UDim2.new(1, 0, 0, 2),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Position = UDim2.new(0.5, 0, Hue, 0),
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                BorderSizePixel = 0,
+                ZIndex = PickerIndex - 1
+            }, {
+                Utilities:Create("UIStroke", {
+                    Color = Color3.fromRGB(0, 0, 0),
+                    Thickness = 1
+                })
+            })
+        }),
+        Utilities:Create("TextLabel", {
+            Name = "HexLabel",
+            Size = UDim2.new(0, 50, 0, 20),
+            Position = UDim2.new(0, 5, 1, -25),
+            BackgroundTransparency = 1,
+            Text = "HEX:",
+            TextColor3 = Colors.PrimaryText,
+            TextSize = 12,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Font = Enum.Font.SourceSansBold,
+            ZIndex = PickerIndex - 1
+        }),
+        Utilities:Create("TextBox", {
+            Name = "HexInput",
+            Size = UDim2.new(0, 60, 0, 20),
+            Position = UDim2.new(0, 40, 1, -25),
+            BackgroundColor3 = Colors.Tertiary,
+            TextColor3 = Colors.PrimaryText,
+            Text = Color3ToHex(Color),
+            TextSize = 12,
+            Font = Enum.Font.SourceSans,
+            ZIndex = PickerIndex - 1
+        }, {
+            Utilities:Create("UIStroke", {
+                Color = Colors.Divider
+            }),
+            Utilities:Create("UIPadding", {
+                PaddingLeft = UDim.new(0, 5)
+            })
+        }),
+        Utilities:Create("TextButton", {
+            Name = "ConfirmButton",
+            Size = UDim2.new(0, 60, 0, 20),
+            Position = UDim2.new(1, -65, 1, -25),
+            BackgroundColor3 = Colors.Accent,
+            Text = "Confirm",
+            TextColor3 = Colors.AccentText,
+            TextSize = 12,
+            Font = Enum.Font.SourceSansBold,
+            ZIndex = PickerIndex - 1
+        }, {
+            Utilities:Create("UIStroke", {
+                Color = Colors.Divider
+            })
+        })
+    })
+
+    local function UpdateColor()
+        Color = Color3.fromHSV(Hue, Sat, Val)
+        ColorPicker.ColorPickerFrame.ColorPreview.BackgroundColor3 = Color
+        ColorPickerContainer.ColorCanvas.BackgroundColor3 = Color3.fromHSV(Hue, 1, 1)
+        ColorPickerContainer.HexInput.Text = Color3ToHex(Color)
+        
+        if Info.Flag then
+            library.Flags[Info.Flag] = Color
+        end
+        
+        task.spawn(Info.Callback, Color)
+    end
+
+    local function Color3ToHex(color)
+        local r = math.floor(color.r * 255)
+        local g = math.floor(color.g * 255)
+        local b = math.floor(color.b * 255)
+        return string.format("#%02X%02X%02X", r, g, b)
+    end
+
+    local function HexToColor3(hex)
+        hex = hex:gsub("#","")
+        return Color3.fromRGB(
+            tonumber("0x"..hex:sub(1,2)),
+            tonumber("0x"..hex:sub(3,4)),
+            tonumber("0x"..hex:sub(5,6))
+        )
+    end
+
+    function ColorPickerTable:Set(color)
+        Hue, Sat, Val = Color3.toHSV(color)
+        Color = color
+        
+        ColorPickerContainer.ColorCanvas.ColorSelector.Position = UDim2.new(Sat, 0, 1 - Val, 0)
+        ColorPickerContainer.HueSelector.Position = UDim2.new(0.5, 0, Hue, 0)
+        UpdateColor()
+    end
+
+    ColorPicker.ColorPickerFrame.MouseEnter:Connect(function()
+        if not ColorPickerOpen then
+            Utilities:Tween(ColorPicker.ColorPickerFrame, .125, {BackgroundColor3 = Colors.Hovering})
+        end
+    end)
+
+    ColorPicker.ColorPickerFrame.MouseLeave:Connect(function()
+        if not ColorPickerOpen then
+            Utilities:Tween(ColorPicker.ColorPickerFrame, .125, {BackgroundColor3 = Colors.Secondary})
+        end
+    end)
+
+    ColorPicker.ColorPickerFrame.ColorPickerButton.MouseButton1Click:Connect(function()
+        ColorPickerOpen = not ColorPickerOpen
+        ColorPickerContainer.Visible = ColorPickerOpen
+        
+        if ColorPickerOpen then
+            DropIndex = DropIndex - 10
+        else
+            DropIndex = DropIndex + 10
+        end
+    end)
+
+    ColorPickerContainer.ColorCanvas.ColorSelector.MouseButton1Down:Connect(function()
+        local MoveConnection, InputEnded
+        
+        MoveConnection = Mouse.Move:Connect(function()
+            local X, Y = Utilities:GetXY(ColorPickerContainer.ColorCanvas)
+            Sat = math.clamp(X, 0, 1)
+            Val = 1 - math.clamp(Y, 0, 1)
+            
+            ColorPickerContainer.ColorCanvas.ColorSelector.Position = UDim2.new(Sat, 0, 1 - Val, 0)
+            UpdateColor()
+        end)
+        
+        InputEnded = UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                MoveConnection:Disconnect()
+                InputEnded:Disconnect()
+            end
+        end)
+    end)
+
+    ColorPickerContainer.HueSlider.MouseButton1Down:Connect(function()
+        local MoveConnection, InputEnded
+        
+        MoveConnection = Mouse.Move:Connect(function()
+            local _, Y = Utilities:GetXY(ColorPickerContainer.HueSlider)
+            Hue = math.clamp(Y, 0, 1)
+            
+            ColorPickerContainer.HueSelector.Position = UDim2.new(0.5, 0, Hue, 0)
+            ColorPickerContainer.ColorCanvas.BackgroundColor3 = Color3.fromHSV(Hue, 1, 1)
+            UpdateColor()
+        end)
+        
+        InputEnded = UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                MoveConnection:Disconnect()
+                InputEnded:Disconnect()
+            end
+        end)
+    end)
+
+    ColorPickerContainer.HexInput.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            local hex = ColorPickerContainer.HexInput.Text
+            if hex:match("^#?[0-9a-fA-F]{6}$") then
+                hex = hex:gsub("#", "")
+                ColorPickerTable:Set(HexToColor3(hex))
+            else
+                ColorPickerContainer.HexInput.Text = Color3ToHex(Color)
+            end
+        end
+    end)
+
+    ColorPickerContainer.ConfirmButton.MouseButton1Click:Connect(function()
+        ColorPickerOpen = false
+        ColorPickerContainer.Visible = false
+        DropIndex = DropIndex + 10
+    end)
+
+    return ColorPickerTable
+end			
+
   local Slider = Utilities:Create("Frame", {
     Name = "Slider",
     Parent = SectionContainer,
@@ -1273,3 +1592,6 @@ end
   end
 
   return library
+
+
+
